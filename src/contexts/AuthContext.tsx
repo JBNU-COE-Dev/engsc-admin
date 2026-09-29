@@ -6,6 +6,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -61,6 +62,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    const response = await authApi.googleLogin(idToken);
+    localStorage.setItem('auth_token', response.token);
+    setIsAuthenticated(true);
+  };
+
   const logout = () => {
     localStorage.removeItem('auth_token');
     setIsAuthenticated(false);
@@ -70,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

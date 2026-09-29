@@ -8,6 +8,12 @@ export const authApi = {
     return response.data;
   },
 
+  // Google 로그인 (관리자 권한을 받은 회원)
+  googleLogin: async (idToken: string): Promise<LoginResponse> => {
+    const response = await apiClient.post<LoginResponse>('/api/auth/admin/google', { idToken });
+    return response.data;
+  },
+
   // 로그아웃
   logout: async (): Promise<void> => {
     await apiClient.post('/api/auth/logout');

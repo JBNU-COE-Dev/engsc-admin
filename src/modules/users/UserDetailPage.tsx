@@ -6,6 +6,7 @@ import { ActivityPostResponseDto, AdminMemberDto } from '@/types';
 import { Button } from '@/components/common/Button';
 import { Alert } from '@/components/common/Alert';
 import { getErrorMessage } from '@/api/client';
+import { UserAccountPanel } from './UserAccountPanel';
 
 const CATEGORY_LABEL: Record<string, string> = {
   EXTERNAL_ACTIVITY: '대외활동',
@@ -141,6 +142,8 @@ export const UserDetailPage: React.FC = () => {
           </div>
         </dl>
       </div>
+
+      <UserAccountPanel user={user} onUpdated={setUser} />
 
       <h2 className="text-xl font-semibold mb-4">작성 글</h2>
 

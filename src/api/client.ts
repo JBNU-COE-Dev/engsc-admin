@@ -32,7 +32,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       const requestUrl = error.config?.url || '';
       // 로그인/로그아웃 API 호출 시에는 리다이렉트하지 않음 (컴포넌트에서 처리)
-      const isAuthEndpoint = requestUrl.includes('/api/auth/login') || requestUrl.includes('/api/auth/logout');
+      const isAuthEndpoint =
+        requestUrl.includes('/api/auth/login') ||
+        requestUrl.includes('/api/auth/admin/google') ||
+        requestUrl.includes('/api/auth/logout');
 
       if (!isAuthEndpoint) {
         // 인증 실패 시 로그인 페이지로 리다이렉트 (로그인/로그아웃 제외)

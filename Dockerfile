@@ -15,6 +15,9 @@ COPY . .
 # 환경 변수 설정 (빌드 타임에 주입)
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+# 관리자 Google 로그인용 (engsc-web의 REACT_APP_GOOGLE_CLIENT_ID와 같은 값). 비우면 버튼 숨김
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
 
 # 빌드 실행
 RUN npm run build

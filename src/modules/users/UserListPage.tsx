@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminUsersApi } from '@/api/adminUsers';
-import { AdminMemberDto } from '@/types';
+import { AdminMemberDto, UserRole, UserStatus } from '@/types';
 import { Button } from '@/components/common/Button';
 import { Alert } from '@/components/common/Alert';
 import { getErrorMessage } from '@/api/client';
+import { RoleBadge, StatusBadge } from './UserBadges';
 
 const formatDate = (value: string) => {
   try {
@@ -20,6 +21,8 @@ export const UserListPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState<UserRole | ''>('');
+  const [statusFilter, setStatusFilter] = useState<UserStatus | ''>('');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const size = 20;
@@ -28,8 +31,13 @@ export const UserListPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const params: { page: number; size: number; search?: string } = { page, size };
+      const params: { page: number; size: number; search?: string; role?: UserRole; status?: UserStatus } = {
+        page,
+        size,
+      };
       if (search) params.search = search;
+      if (roleFilter) params.role = roleFilter;
+      if (statusFilter) params.status = statusFilter;
       const res = await adminUsersApi.getList(params);
       setItems(res.content || []);
       setTotalPages(res.totalPages ?? 0);
@@ -43,7 +51,7 @@ export const UserListPage: React.FC = () => {
 
   useEffect(() => {
     fetchList();
-  }, [page, search]);
+  }, [page, search, roleFilter, statusFilter]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +67,7 @@ export const UserListPage: React.FC = () => {
 
       {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
 
-      <form onSubmit={handleSearch} className="mb-4 flex gap-2">
+      <form onSubmit={handleSearch} className="mb-4 flex flex-wrap gap-2">
         <input
           type="text"
           className="border rounded px-3 py-2 flex-1 max-w-md"
@@ -67,6 +75,30 @@ export const UserListPage: React.FC = () => {
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />
+        <select
+          className="border rounded px-3 py-2"
+          value={roleFilter}
+          onChange={(e) => {
+            setPage(0);
+            setRoleFilter(e.target.value as UserRole | '');
+          }}
+        >
+          <option value="">전체 권한</option>
+          <option value="ADMIN">관리자</option>
+          <option value="USER">일반 회원</option>
+        </select>
+        <select
+          className="border rounded px-3 py-2"
+          value={statusFilter}
+          onChange={(e) => {
+            setPage(0);
+            setStatusFilter(e.target.value as UserStatus | '');
+          }}
+        >
+          <option value="">전체 상태</option>
+          <option value="ACTIVE">정상</option>
+          <option value="SUSPENDED">정지</option>
+        </select>
         <Button type="submit">검색</Button>
       </form>
 
@@ -81,6 +113,8 @@ export const UserListPage: React.FC = () => {
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">이메일</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">닉네임</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">권한</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">가입일</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">글 수</th>
                   <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">관리</th>
@@ -89,7 +123,7 @@ export const UserListPage: React.FC = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {items.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">
+                    <td colSpan={8} className="px-4 py-6 text-center text-sm text-gray-500">
                       회원이 없습니다.
                     </td>
                   </tr>
@@ -99,6 +133,12 @@ export const UserListPage: React.FC = () => {
                       <td className="px-4 py-2 text-sm text-gray-500">{row.id}</td>
                       <td className="px-4 py-2 text-sm text-gray-900">{row.email}</td>
                       <td className="px-4 py-2 text-sm text-gray-900">{row.nickname}</td>
+                      <td className="px-4 py-2 text-sm">
+                        <RoleBadge role={row.role} />
+                      </td>
+                      <td className="px-4 py-2 text-sm">
+                        <StatusBadge status={row.status} />
+                      </td>
                       <td className="px-4 py-2 text-sm text-gray-500">{formatDate(row.createdAt)}</td>
                       <td className="px-4 py-2 text-sm text-gray-500">{row.postCount}</td>
                       <td className="px-4 py-2 text-sm text-right">

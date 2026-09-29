@@ -47,12 +47,44 @@ export interface Page<T> {
 }
 
 // 회원 관리 (일반 회원)
+export type UserRole = 'USER' | 'ADMIN';
+export type UserStatus = 'ACTIVE' | 'SUSPENDED';
+
 export interface AdminMemberDto {
   id: number;
   email: string;
   nickname: string;
   createdAt: string;
   postCount: number;
+  role: UserRole;
+  /** 실제 적용 상태 (정지 기간이 지났으면 ACTIVE) */
+  status: UserStatus;
+  /** 정지 중일 때만 값 있음. null이면 영구 정지 */
+  suspendedUntil: string | null;
+  suspendReason: string | null;
+}
+
+export interface UserStatusUpdateRequest {
+  status: UserStatus;
+  reason?: string;
+  /** 'YYYY-MM-DDTHH:mm:ss' (서버 시간대). 생략 시 영구 정지 */
+  suspendedUntil?: string | null;
+}
+
+export interface UserRoleUpdateRequest {
+  role: UserRole;
+  reason?: string;
+}
+
+export type UserAccountAction = 'SUSPEND' | 'UNSUSPEND' | 'GRANT_ADMIN' | 'REVOKE_ADMIN';
+
+export interface UserAccountHistoryDto {
+  id: number;
+  action: UserAccountAction;
+  reason: string | null;
+  suspendedUntil: string | null;
+  performedBy: string;
+  createdAt: string;
 }
 
 // 인증 관련 타입
@@ -64,6 +96,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   username: string;
+  nickname?: string | null;
 }
 
 // 매칭 관련 타입
